@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "password": "hashed_password_here",
+    "user_type": "admin",
+    "role_id": "ROLE_ADMIN_ID_PLACEHOLDER"
+  },
+  {
+    "name": "John Worker",
+    "email": "worker@example.com",
+    "password": "hashed_password_here",
+    "user_type": "worker",
+    "role_id": "ROLE_WORKER_ID_PLACEHOLDER"
+  },
+  {
+    "name": "Jane Customer",
+    "email": "customer@example.com",
+    "password": "hashed_password_here",
+    "user_type": "customer",
+    "role_id": "ROLE_CUSTOMER_ID_PLACEHOLDER"
+  }
+]

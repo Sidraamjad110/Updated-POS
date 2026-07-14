@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Chicken Wings",
+    "price": 12.99,
+    "description": "Spicy grilled wings",
+    "category_id": "68270c547a76da13e6ce8af0"
+  },
+  {
+    "name": "Grilled Salmon",
+    "price": 24.99,
+    "description": "Fresh salmon fillet",
+    "category_id": "68270c547a76da13e6ce8af1"
+  },
+  {
+    "name": "Chocolate Cake",
+    "price": 6.5,
+    "description": "Rich chocolate layered cake",
+    "category_id": "68270c547a76da13e6ce8af2"
+  },
+  {
+    "name": "Mango Smoothie",
+    "price": 4.99,
+    "description": "Fresh mango blended drink",
+    "category_id": "68270c547a76da13e6ce8af3"
+  }
+]

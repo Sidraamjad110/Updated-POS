@@ -1,0 +1,17 @@
+[
+  {
+    "user_id": "682718641a2c9d4aac8f21df",  
+    "items": [
+      {
+        "product_id": "682718641a2c9d4aac8f21e6",  
+        "quantity": 2
+      },
+      {
+        "product_id": "682718641a2c9d4aac8f21e9", 
+        "quantity": 1
+      }
+    ],
+    "total_amount": 30.97,
+    "status": "placed"
+  }
+]

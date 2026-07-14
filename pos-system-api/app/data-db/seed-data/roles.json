@@ -1,0 +1,27 @@
+[
+  {
+    "_id": { "$oid": "665102a19f1c8a3d4a7b0001" },
+    "name": "admin",
+    "permissions": []
+  },
+  {
+    "_id": { "$oid": "665102a19f1c8a3d4a7b0002" },
+    "name": "manager",
+    "permissions": []
+  },
+  {
+    "_id": { "$oid": "665102a19f1c8a3d4a7b0003" },
+    "name": "worker",
+    "permissions": []
+  },
+  {
+    "_id": { "$oid": "665102a19f1c8a3d4a7b0004" },
+    "name": "chef",
+    "permissions": []
+  },
+  {
+    "_id": { "$oid": "665102a19f1c8a3d4a7b0005" },
+    "name": "customer_service",
+    "permissions": []
+  }
+]

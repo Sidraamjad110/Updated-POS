@@ -1,0 +1,27 @@
+[
+  {
+    "_id": { "$oid": "665103c89f1c8a3d4a7b1001" },
+    "name": "can_add_category"
+    
+  },
+  {
+    "_id": { "$oid": "665103c89f1c8a3d4a7b1002" },
+    "name": "can_edit_menu"
+    
+  },
+  {
+    "_id": { "$oid": "665103c89f1c8a3d4a7b1003" },
+    "name": "can_manage_orders"
+    
+  },
+  {
+    "_id": { "$oid": "665103c89f1c8a3d4a7b1004" },
+    "name": "can_view_reports"
+    
+  },
+  {
+    "_id": { "$oid": "665103c89f1c8a3d4a7b1005" },
+    "name": "can_manage_staff"
+    
+  }
+]

@@ -1,0 +1,280 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  /* Universal semantic colors - never change across themes */
+  --success-color: #10b981; /* Emerald-500 from tailwind.config.js */
+  --warning-color: #f59e0b; /* Amber-500 from tailwind.config.js */
+  --error-color: #ef4444; /* Red-500 from tailwind.config.js */
+  --info-color: #3b82f6; /* Blue-500 from tailwind.config.js */
+  --text-on-primary: #ffffff; /* White text/icon for buttons/icons */
+  /* Interactive state indicators */
+  --focus-ring: #3b82f6; /* Blue-500 for focus rings */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  /* Hover state enhancement */
+  --hover-opacity: 0.8;
+  --active-opacity: 0.9;
+  --disabled-bg: #9ca3af; /* Gray-400 */
+  --disabled-text: #d1d5db; /* Gray-300 */
+}
+
+/* Ensure smooth font rendering */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* DEFAULT THEME - Orange Primary */
+[data-theme="default"] {
+  --primary-color: #f97316; /* theme-default.primary (Orange-500) */
+  --primary-hover: #f39555; /* theme-default.700 (Orange-700) */
+  --text-on-primary: #ffffff; /* White text/icon for buttons/icons */
+  --secondary-color: #64748b; /* secondary.DEFAULT (Slate-500) */
+  --background-color: #ffffff; /* background.secondary (White) */
+  --background-secondary: #f8fafc; /* background.DEFAULT (Slate-50) */
+  --text-color: #0f172a; /* text.DEFAULT (Slate-900) */
+  --text-color-button: #ffffff; /* Button colors */
+  --text-color-gray: #6B7280; /* text-gray-500 */
+  --bg-gray: #D1D5DB; /* bg-gray-300 */
+  --text-secondary: #64748b; /* text.secondary (Slate-500) */
+  --sidebar-bg: #1e293b; /* sidebar.bg (Slate-800) */
+  --sidebar-bg-hover: #334155; /* sidebar.hover (Slate-700) */
+  --sidebar-text: #f8fafc; /* Slate-50 */
+  --border-color: #cbd5e1; /* Slate-300 */
+  --border-hover: #94a3b8; /* Slate-400 */
+  --accent-color: #3b82f6; /* Blue-500 */
+  --surface-color: #ffffff; /* background.secondary */
+  --surface-secondary: #f1f5f9; /* background.surface (Slate-100) */
+  --error-color-hover: #dc2626; /* Red-600 */
+}
+
+/* BLUE THEME */
+[data-theme="blue"] {
+  --primary-color: #3b82f6; /* theme-blue.primary (Blue-500) */
+  --primary-hover: #618fd8; /* theme-blue.700 (Blue-700) */
+  --text-on-primary: #ffffff; /* White text/icon for buttons/icons */
+  --secondary-color: #64748b; /* secondary.DEFAULT (Slate-500) */
+  --background-color: #ffffff; /* background.secondary (White) */
+  --background-secondary: #f8fafc; /* background.DEFAULT (Slate-50) */
+  --text-color: #0f172a; /* text.DEFAULT (Slate-900) */
+  --text-color-button: #ffffff; /* Button colors */
+  --text-color-gray: #6B7280; /* text-gray-500 */
+  --bg-gray: #D1D5DB; /* bg-gray-300 */
+  --text-secondary: #64748b; /* text.secondary (Slate-500) */
+  --sidebar-bg: #1e293b; /* sidebar.bg (Slate-800) */
+  --sidebar-bg-hover: #334155; /* sidebar.hover (Slate-700) */
+  --sidebar-text: #f8fafc; /* Slate-50 */
+  --border-color: #cbd5e1; /* Slate-300 */
+  --border-hover: #94a3b8; /* Slate-400 */
+  --accent-color: #3b82f6; /* Blue-500 */
+  --surface-color: #ffffff; /* background.secondary */
+  --surface-secondary: #f1f5f9; /* background.surface (Slate-100) */
+  --error-color-hover: #dc2626; /* Red-600 */
+}
+
+/* GREEN THEME */
+[data-theme="green"] {
+  --primary-color: #059669; /* theme-green.primary (Emerald-600) */
+  --primary-hover: #36dfa9; /* theme-green.700 (Emerald-800) */
+  --text-on-primary: #ffffff; /* White text/icon for buttons/icons */
+  --secondary-color: #64748b; /* secondary.DEFAULT (Slate-500) */
+  --background-color: #ffffff; /* background.secondary (White) */
+  --background-secondary: #f8fafc; /* background.DEFAULT (Slate-50) */
+  --text-color: #0f172a; /* text.DEFAULT (Slate-900) */
+  --text-color-button: #ffffff; /* Button colors */
+  --text-color-gray: #6B7280; /* text-gray-500 */
+  --bg-gray: #D1D5DB; /* bg-gray-300 */
+  --text-secondary: #64748b; /* text.secondary (Slate-500) */
+  --sidebar-bg: #1e293b; /* sidebar.bg (Slate-800) */
+  --sidebar-bg-hover: #334155; /* sidebar.hover (Slate-700) */
+  --sidebar-text: #f0fdf4; /* Green-50 */
+  --border-color: #cbd5e1; /* Slate-300 */
+  --border-hover: #94a3b8; /* Slate-400 */
+  --accent-color: #3b82f6; /* Blue-500 */
+  --surface-color: #ffffff; /* background.secondary */
+  --surface-secondary: #f1f5f9; /* background.surface (Slate-100) */
+  --error-color-hover: #dc2626; /* Red-600 */
+}
+
+/* Update [data-theme="professional"] section */
+[data-theme="professional"] {
+  --primary-color: #1f2937; /* Gray-800 */
+  --primary-hover: #314461; /* Gray-900 */
+  --text-on-primary: #ffffff; /* White text/icon for buttons/icons */
+  --secondary-color: #64748b; /* secondary.DEFAULT (Slate-500) */
+  --background-color: #ffffff; /* background.secondary (White) */
+  --background-secondary: #f9fafb; /* Gray-50 */
+  --text-color: #111827; /* Gray-900 */
+  --text-secondary: #64748b; /* text.secondary (Slate-500) */
+  --sidebar-bg: #111827; /* Gray-900 */
+  --sidebar-bg-hover: #1f2937; /* Gray-800 */
+  --sidebar-text: #f9fafb; /* Gray-50 */
+  --border-color: #d1d5db; /* Gray-300 */
+  --border-hover: #9ca3af; /* Gray-400 */
+  --accent-color: #3b82f6; /* Blue-500 */
+  --surface-color: #ffffff; /* background.secondary */
+  --surface-secondary: #f3f4f6; /* Gray-100 */
+  --error-color-hover: #dc2626; /* Red-600 */
+  /* Ensure inactive buttons have white text */
+  --button-inactive-text: #ffffff; /* Override for inactive buttons */
+}
+button:disabled {
+  background-color: var(--disabled-bg);
+  color: var(--disabled-text);
+  cursor: not-allowed;
+}
+/* Add universal button inactive text override */
+button:not(.bg-[var(--primary-color)]), button.bg-[var(--background-secondary)] {
+  color: var(--button-inactive-text, var(--text-secondary));
+}
+
+/* Disabled button styles */
+button:disabled {
+  background-color: var(--disabled-bg);
+  color: var(--disabled-text);
+  cursor: not-allowed;
+}
+
+/* WARM MINIMAL THEME */
+[data-theme="warm-minimal"] {
+  --primary-color: #92400e; /* Amber-800 */
+  --primary-hover: #d17034; /* Amber-900 */
+  --text-on-primary: #ffffff; /* White text/icon for buttons/icons */
+  --secondary-color: #57534e; /* Stone-600 */
+  --background-color: #fffbeb; /* Amber-50 */
+  --background-secondary: #fef3c7; /* Amber-100 */
+  --text-color: #1c1917; /* Stone-900 */
+  --text-secondary: #57534e; /* Stone-600 */
+  --sidebar-bg: #78350f; /* Amber-900 */
+  --sidebar-bg-hover: #92400e; /* Amber-800 */
+  --sidebar-text: #fffbeb; /* Amber-50 */
+  --border-color: #d6d3d1; /* Stone-300 */
+  --border-hover: #a8a29e; /* Stone-400 */
+  --accent-color: #3b82f6; /* Blue-500 */
+  --surface-color: #fefce8; /* Yellow-50 */
+  --surface-secondary: #fef3c7; /* Amber-100 */
+  --error-color-hover: #dc2626; /* Red-600 */
+}
+
+/* DARK PRO THEME */
+[data-theme="dark-pro"] {
+  --primary-color: #5497ff; /* Blue-500 adjusted */
+  --primary-hover: #638fd1; /* Blue-600 adjusted */
+  --text-on-primary: #ffffff; /* White text/icon for buttons/icons */
+  --secondary-color: #b0b8c6; /* Gray-400 */
+  --background-color: #111827; /* Gray-900 */
+  --background-secondary: #212c3b; /* Gray-800 */
+  --text-color: #e0e0e0; /* Lighter for primary text */
+  --text-secondary: #8c9fae; /* Lighter for secondary text */
+  --sidebar-bg: #0d121f; /* Slate-900 */
+  --sidebar-bg-hover: #1b263b; /* Slate-800 */
+  --sidebar-text: #f1f5f9; /* Slate-100 */
+  --border-color: #3b4959; /* Gray-700 */
+  --border-hover: #506173; /* Gray-600 */
+  --accent-color: #60a5fa; /* Blue-400 */
+  --surface-color: #2b394d; /* Gray-800 */
+  --surface-secondary: #3d4c62; /* Gray-700 */
+  --success-color: #34d399; /* Emerald-400 */
+  --warning-color: #fbbf24; /* Amber-400 */
+  --error-color: #f87171; /* Red-400 */
+  --info-color: #60a5fa; /* Blue-400 */
+  --error-color-hover: #fca5a5; /* Red-300 */
+}
+
+/* FOCUS STATES - Universal across all themes */
+*:focus {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* INTERACTIVE STATE ENHANCEMENTS */
+
+
+button:active,
+a:active,
+[role="button"]:active {
+  opacity: var(--active-opacity);
+}
+
+/* HIGH CONTRAST MODE SUPPORT */
+@media (prefers-contrast: high) {
+  :root {
+    --text-color: #000000;
+    --background-color: #ffffff;
+    --border-color: #000000;
+  }
+
+  [data-theme="dark-pro"] {
+    --text-color: #ffffff;
+    --background-color: #000000;
+    --border-color: #ffffff;
+  }
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  display: none;
+}
+
+input[type="date"]::-moz-calendar-picker-indicator {
+  display: none;
+}
+
+.product-image-container {
+  width: 64px; /* Match h-16 for consistency */
+  height: 64px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.product-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.no-image-icon {
+  font-size: 2rem;
+  color: var(--text-secondary);
+}
+
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+#category-scroll {
+  position: sticky !important;
+  top: 74px !important; /* Match header height */
+  overflow-x: hidden !important; /* Remove scrollbar */
+  white-space: nowrap; /* Keep items in line */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+
+}
+
+#category-scroll::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Webkit browsers */
+}
+
+#category-scroll {
+  -ms-overflow-style: none; /* Hide scrollbar for IE and Edge */
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+}
