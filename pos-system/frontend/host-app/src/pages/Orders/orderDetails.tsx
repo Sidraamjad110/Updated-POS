@@ -6,7 +6,7 @@ import AddToOrderForm from './addToOrder';
 import { ChartBarIcon, ShoppingBagIcon, XMarkIcon, PrinterIcon } from '@heroicons/react/24/outline';
 import UserService from '../../services/UserService';
 import { useAuth } from '../../context/AuthContext';
-import { printReceipt } from './printReceipt';
+import { printReceipt } from '../../types/printReceipt';
 interface Product {
   _id: string;
   name: string;

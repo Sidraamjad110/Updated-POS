@@ -20,16 +20,41 @@ try {
     };
     app.use(apiLogger);
 
-    // Custom CORS middleware
+    // Custom CORS middleware — allow local frontends + Cloudflare/cPanel origins
     app.use((req, res, next) => {
       const origin = req.headers.origin;
-      if (origin === 'http://localhost:3000') {
-        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+      const allowed = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:3002',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:3001',
+        'http://127.0.0.1:3002',
+        process.env.PUBLIC_URL,
+        process.env.SERVER_URL,
+        process.env.FRONTEND_URL,
+      ].filter(Boolean);
+
+      const isAllowed =
+        !origin ||
+        allowed.includes(origin) ||
+        /\.trycloudflare\.com$/.test(origin) ||
+        // allow typical cPanel / hosted frontends over http(s)
+        /^https?:\/\//.test(origin);
+
+      if (isAllowed && origin) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
         res.setHeader('Access-Control-Allow-Credentials', 'true');
-        res.setHeader('Access-Control-Allow-Methods', 'POST, GET, DELETE, PUT, PATCH ,OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, api_key, Authorization, x-requested-with, Total-Count, Total-Pages, Error-Messages');
-        res.setHeader('Access-Control-Max-Age', 1800);
+      } else if (!origin) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
       }
+      res.setHeader('Access-Control-Allow-Methods', 'POST, GET, DELETE, PUT, PATCH, OPTIONS');
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Content-Type, api_key, Authorization, x-requested-with, Total-Count, Total-Pages, Error-Messages'
+      );
+      res.setHeader('Access-Control-Max-Age', 1800);
+
       if (req.method === 'OPTIONS') {
         return res.sendStatus(200);
       }

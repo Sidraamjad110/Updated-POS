@@ -2,7 +2,14 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { fetchStoreInfo, fetchCustomerDetails, placeOrder } from '../../services/CustomerService';
 
-export default function CartModal({ isOpen, onClose, store, onOrderSuccess }) {
+type CartModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  store?: { slug?: string; [key: string]: any } | null;
+  onOrderSuccess?: () => void;
+};
+
+export default function CartModal({ isOpen, onClose, store, onOrderSuccess }: CartModalProps) {
     const [cart, setCart] = useState([]);
     const [loading, setLoading] = useState(false);
     const [orderLoading, setOrderLoading] = useState(false);

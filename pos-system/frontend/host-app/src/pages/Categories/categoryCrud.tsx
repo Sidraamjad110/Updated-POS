@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {XMarkIcon, TagIcon, UserIcon} from '@heroicons/react/24/outline';
 import { addCategory, updateCategory, deleteCategory } from '../../services/categoryService';
-import { Category } from './categoryTypes';
+import { Category } from '../../types/categoryTypes';
 import FlashMessage from '../FlashMessage';
 
 interface CategoryCrudProps {

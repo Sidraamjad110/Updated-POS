@@ -1,6 +1,15 @@
 const NextFederationPlugin = require('@module-federation/nextjs-mf');
 
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.REACT_APP_API_URL ||
+  'https://imaging-larger-trusted-pci.trycloudflare.com';
+
 module.exports = {
+  env: {
+    NEXT_PUBLIC_API_URL: API_URL,
+    REACT_APP_API_URL: API_URL,
+  },
   webpack(config, { isServer }) {
     config.plugins.push(
       new NextFederationPlugin({

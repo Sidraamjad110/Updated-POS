@@ -8,7 +8,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { fetchRoles } from '../../services/RoleService';
 import { updateRolePermissions } from '../../services/PermissionService';
-import { RolePermissionsProps } from './permissionsTypes';
+import { RolePermissionsProps } from '../../types/permissionsTypes';
 
 interface Permission {
   _id: string;

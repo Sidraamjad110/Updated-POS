@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
-import { Product } from './productTypes';
+import { Product } from '../../types/productTypes';
 
 interface ProductDetailsProps {
   product: Product;

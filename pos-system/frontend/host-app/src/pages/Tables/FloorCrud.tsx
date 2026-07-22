@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon, BuildingOffice2Icon } from '@heroicons/react/24/outline';
 import { createFloor, updateFloor } from '../../services/floorTableService';
-import { Floor } from './tableTypes';
+import { Floor } from '../../types/tableTypes';
 import FlashMessage from '../FlashMessage';
 
 interface FloorCrudProps {

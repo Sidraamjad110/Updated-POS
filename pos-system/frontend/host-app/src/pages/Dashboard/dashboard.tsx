@@ -781,9 +781,9 @@ const Dashboard = () => {
       try {
         const [rawOrders, roleData] = await Promise.all([
           getOrders(token, logout),
-          fetch('http://192.168.18.37:3000/rolepermission/api/v1/roles/list', {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL || 'https://imaging-larger-trusted-pci.trycloudflare.com'}/rolepermission/api/v1/roles/list`, {
             headers: { Authorization: `Bearer ${token}` },
-          }).then(res => res.json()).then(data => data.data.data)
+          }).then(res => res.json()).then(data => data?.data?.data || [])
         ]);
 
         // Safely transform API response to match local Order interface

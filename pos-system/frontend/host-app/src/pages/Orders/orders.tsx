@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import OrderList from './orderList';
 import createOrder from './createOrder';
 import { getAllOrders, getOrderQueue } from '../../services/orderService';
-import { Order } from './orderTypes';
+import { Order } from '../../types/orderTypes';
 import OrderDetails from './orderDetails';
 
 export default function Orders() {

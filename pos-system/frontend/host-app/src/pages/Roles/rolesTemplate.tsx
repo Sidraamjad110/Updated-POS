@@ -4,10 +4,10 @@ import { fetchRoles, deleteRole } from '../../services/RoleService';
 import { fetchPermissions } from '../../services/PermissionService';
 import FlashMessage from '../FlashMessage';
 import RoleList from './roleList';
-import RoleCrud from './RoleCrud';
+import RoleCrud from './roleCrud';
 import RolePermissions from './rolePermissions';
-import { Role, RolesTemplateProps } from './roleTypes';
-import { Permission } from './permissionsTypes';
+import { Role, RolesTemplateProps } from '../../types/roleTypes';
+import { Permission } from '../../types/permissionsTypes';
 
 const RolesTemplate: React.FC<RolesTemplateProps> = ({ token, logout }) => {
   const [roles, setRoles] = useState<Role[]>([]);

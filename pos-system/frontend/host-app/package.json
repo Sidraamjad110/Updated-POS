@@ -10,7 +10,9 @@
 
     "dev": "cross-env NEXT_PRIVATE_LOCAL_WEBPACK=true next dev -p 3002",
 
-    "build": "next build",
+    "build": "cross-env CPANEL_BUILD=1 NEXT_PRIVATE_LOCAL_WEBPACK=true next build",
+
+    "build:cpanel": "cross-env CPANEL_BUILD=1 NEXT_PRIVATE_LOCAL_WEBPACK=true next build",
 
     "export": "next export",
 
@@ -42,6 +44,8 @@
 
     "@module-federation/nextjs-mf": "^7.0.0",
 
+    "@popperjs/core": "^2.11.8",
+
     "autoprefixer": "^10.4.16",
 
     "chart.js": "^4.4.9",
@@ -69,6 +73,8 @@
     "react-dom": "^18.2.0",
 
     "react-hot-toast": "^2.6.0",
+
+    "react-popper": "^2.3.0",
 
     "react-qr-code": "^2.0.16",
 

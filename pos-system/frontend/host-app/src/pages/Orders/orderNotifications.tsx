@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Order } from './orderTypes';
+import { Order } from '../../types/orderTypes';
 import { markNotificationAsRead, getOrderQueue, QueueOrder } from '../../services/orderService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock, faCheck, faBoxOpen, faTruck, faUtensils, faTimes, faCheckCircle, faBell, faTrash } from '@fortawesome/free-solid-svg-icons';

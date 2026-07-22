@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { OrderItem, ThemeColors, OrderDetailsProps } from './orderDetails';
 import UserService from '../../services/UserService';
 import { useAuth } from '../../context/AuthContext';
-import {printReceipt} from "./printReceipt";
+import {printReceipt} from "../../types/printReceipt";
 
 const ParentOrderCard: React.FC<{
   parentOrder: Order | null;

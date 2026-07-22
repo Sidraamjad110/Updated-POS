@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { createRole, updateRole } from '../../services/RoleService';
-import { RoleCrudProps, FormData, FormErrors } from './roleTypes';
+import { RoleCrudProps, FormData, FormErrors } from '../../types/roleTypes';
 
 const RoleCrud: React.FC<RoleCrudProps> = ({
                                              token,

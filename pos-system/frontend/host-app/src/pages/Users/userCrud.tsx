@@ -1,6 +1,6 @@
 import React from 'react';
 import { XMarkIcon, UserIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
-import { User, Role, FormData, FormErrors } from './userTypes';
+import { User, Role, FormData, FormErrors } from '../../types/userTypes';
 
 interface UserCrudProps {
   token: string | null;

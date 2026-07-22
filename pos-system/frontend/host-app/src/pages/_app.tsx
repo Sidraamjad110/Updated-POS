@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import { useState, useEffect, useRef } from 'react';
 import { AppProps } from 'next/app';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import 'shared-tailwind/styles';
 import '@fontsource/nunito';
@@ -19,25 +19,28 @@ import {
   showCurrencyChangeNotification,
   dispatchSettingsLoadedEvent
 } from '../services/AppService';
+import Sidebar from '../components/Sidebar';
 
 const FallbackHeader = () => <div>Header failed to load</div>;
 const FallbackFooter = () => <div>Footer failed to load</div>;
 
 const Header = dynamic(
-    () => import('remoteApp/Header').catch((err) => {
-      console.error('Header load error:', err);
-      return FallbackHeader;
-    }),
+    () =>
+      import('remoteApp/Header')
+        .catch((err) => {
+          console.error('Header load error:', err);
+          return { default: FallbackHeader };
+        }),
     { ssr: false }
 );
 
-import Sidebar from '../components/Sidebar';
-
 const Footer = dynamic(
-    () => import('remoteApp/Footer').catch((err) => {
-      console.error('Footer load error:', err);
-      return FallbackFooter;
-    }),
+    () =>
+      import('remoteApp/Footer')
+        .catch((err) => {
+          console.error('Footer load error:', err);
+          return { default: FallbackFooter };
+        }),
     { ssr: false }
 );
 
@@ -67,8 +70,8 @@ function AppContent({ Component, pageProps, router }: AppProps) { // Add router 
   const lastKnownCurrencyRef = useRef<string>('pkr');
 
   const { isAuthenticated, isLoading, logout, token, user, userPermissions } = useAuth();
-  const nextRouter = useRouter(); // Rename to avoid conflict with prop
-  const pathname = usePathname();
+  const nextRouter = useRouter();
+  const pathname = nextRouter.asPath?.split('?')[0] || nextRouter.pathname || null;
 
   const actualPathname = pathname || (typeof window !== 'undefined' ? window.location.pathname : null);
   const extractedSlug = extractSlugFromPath(actualPathname);
@@ -436,6 +439,8 @@ function AppContent({ Component, pageProps, router }: AppProps) { // Add router 
             onSidebarToggle={() => setSidebarOpen(!sidebarOpen)}
             onLogout={handleLogout}
             onNavigate={navigateWithSlug}
+            darkMode={false}
+            onDarkModeToggle={() => {}}
             token={token}
             user={normalizedUser}
             className={headerHeight}

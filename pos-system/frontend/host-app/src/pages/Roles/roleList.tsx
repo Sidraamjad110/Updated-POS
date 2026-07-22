@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MagnifyingGlassIcon, PencilIcon, TrashIcon, UserGroupIcon, XMarkIcon, PlusIcon } from '@heroicons/react/24/outline';
-import { Role, RoleListProps } from './roleTypes';
+import { Role, RoleListProps } from '../../types/roleTypes';
 import { useAuth } from '../../context/AuthContext';
 const RoleList: React.FC<RoleListProps> = ({
                                              roles,

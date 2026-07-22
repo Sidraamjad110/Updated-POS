@@ -31,24 +31,35 @@ commonFunctions.userinfo = {
   password: Joi.string()
     .required()
     .min(8)
+    .max(128)
     .custom((value, helpers) => {
+      if (/\s/.test(value)) {
+        return helpers.message("Password cannot contain spaces");
+      }
       if (!/[a-z]/.test(value)) {
         return helpers.message("Password must include at least one lowercase letter");
       }
       if (!/[A-Z]/.test(value)) {
         return helpers.message("Password must include at least one uppercase letter");
       }
-      if (!/\d/.test(value)) {
+      if (!/[0-9]/.test(value)) {
         return helpers.message("Password must include at least one number");
       }
-      if (!/^[A-Za-z\d]+$/.test(value)) {
-        return helpers.message("Password can only contain letters and numbers");
+      if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(value)) {
+        return helpers.message("Password must include at least one special character");
+      }
+      if (/(.)\1{2,}/.test(value)) {
+        return helpers.message(
+          "Password cannot contain more than 2 consecutive identical characters"
+        );
       }
       return value;
     })
-    .description("User password. Must be at least 8 characters, include uppercase, lowercase, and number")
-    .example("Password123")
-    .default("Password123"),
+    .description(
+      "User password. Must be 8-128 chars with uppercase, lowercase, number, and special character"
+    )
+    .example("Password123!")
+    .default("Password123!"),
 };
 
 commonFunctions.passwordValidation = commonFunctions.userinfo.password;

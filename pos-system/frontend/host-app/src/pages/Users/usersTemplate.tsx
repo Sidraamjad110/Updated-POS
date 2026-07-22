@@ -6,7 +6,7 @@ import FlashMessage from '../FlashMessage';
 import UserList from './userList';
 import UserCrud from './userCrud';
 import UserRole from './userRole';
-import { User, Role, UsersTemplateProps } from './userTypes';
+import { User, Role, UsersTemplateProps } from '../../types/userTypes';
 import { useAuth } from '../../context/AuthContext';
 const UsersTemplate: React.FC<UsersTemplateProps> = ({ token, logout }) => {
   const [roles, setRoles] = useState<Role[]>([]);

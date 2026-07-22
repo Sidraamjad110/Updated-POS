@@ -1,6 +1,6 @@
 import toast from 'react-hot-toast';
 
-import { Category, Product } from './productTypes';
+import { Category, Product } from '../types/productTypes';
 
 interface ApiResponse<T> {
   statusCode: number;

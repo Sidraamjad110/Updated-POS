@@ -12,7 +12,7 @@ import FlashMessage from '../FlashMessage';
 import OrderDetails from './orderDetails';
 import OrderMenu from './orderMenu';
 import toast from 'react-hot-toast';
-import { printReceipt } from './printReceipt';
+import { printReceipt } from '../../types/printReceipt';
 // At the top of createOrder.tsx, add this import:
 import { Order } from '../../services/orderService';
 

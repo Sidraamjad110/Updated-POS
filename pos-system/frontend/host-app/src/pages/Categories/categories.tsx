@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { fetchCategories } from '../../services/categoryService';
-import { Category } from './categoryTypes';
+import { Category } from '../../types/categoryTypes';
 import FlashMessage from '../FlashMessage';
 import CategoryCrud from './categoryCrud';
 import CategoryList from './categoryList';

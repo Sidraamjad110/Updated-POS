@@ -130,8 +130,8 @@ button:disabled {
   color: var(--disabled-text);
   cursor: not-allowed;
 }
-/* Add universal button inactive text override */
-button:not(.bg-[var(--primary-color)]), button.bg-[var(--background-secondary)] {
+/* Prefer a dedicated inactive class over Tailwind-like selectors cssnano cannot parse */
+button.btn-inactive {
   color: var(--button-inactive-text, var(--text-secondary));
 }
 

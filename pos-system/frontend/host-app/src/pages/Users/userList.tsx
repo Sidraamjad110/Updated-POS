@@ -1,6 +1,6 @@
 import React from 'react';
 import { MagnifyingGlassIcon, PencilIcon, TrashIcon, UserIcon, PlusIcon,XMarkIcon  } from '@heroicons/react/24/outline';
-import { User, Role } from './userTypes';
+import { User, Role } from '../../types/userTypes';
 import UserCrud from './userCrud';
 import { useAuth } from '../../context/AuthContext';
 

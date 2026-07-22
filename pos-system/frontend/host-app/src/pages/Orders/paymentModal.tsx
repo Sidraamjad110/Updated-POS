@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Order } from './orderTypes';
+import { Order } from '../../types/orderTypes';
 import { processPayment, markOrderAsCompleted } from '../../services/orderService';
 import { PrinterIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';

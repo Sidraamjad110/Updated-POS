@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import { fetchFloors, fetchTables, fetchFreeTables, deleteTable, deleteFloor } from '../../services/floorTableService';
-import { Floor, Table } from './tableTypes';
+import { Floor, Table } from '../../types/tableTypes';
 import FlashMessage from '../FlashMessage';
 import FloorCrud from './FloorCrud';
 import TableList from './TableList';

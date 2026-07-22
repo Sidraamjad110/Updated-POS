@@ -27,7 +27,11 @@ interface ApiResponse {
 }
 
 class UserService {
-  private static readonly BASE_URL = 'http://192.168.18.37:3000/users/api/v1';
+  private static readonly BASE_URL = `${
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.REACT_APP_API_URL ||
+    'https://imaging-larger-trusted-pci.trycloudflare.com'
+  }/users/api/v1`;
   private static readonly TIMEOUT = 10000;
 
   static async getUserDetails(token: string): Promise<UserDetails> {

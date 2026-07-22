@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon, PlusCircleIcon, ExclamationCircleIcon, ShoppingBagIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { addProduct, updateProduct, deleteProduct } from '../../services/productService';
-import { Category, Product } from './productTypes';
+import { Category, Product } from '../../types/productTypes';
 import FlashMessage from '../FlashMessage';
 
 interface ProductCrudProps {

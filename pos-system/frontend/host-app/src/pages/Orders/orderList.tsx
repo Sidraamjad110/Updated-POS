@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Order } from './orderTypes';
+import { Order } from '../../types/orderTypes';
 import PaymentModal, { OrderSearch } from './paymentModal';
 import OrderNotifications from './orderNotifications';
 import {

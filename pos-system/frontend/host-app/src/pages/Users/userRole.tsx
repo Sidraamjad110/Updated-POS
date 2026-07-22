@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { UserIcon } from '@heroicons/react/24/outline';
 import { assignRole } from '../../services/UserService';
-import { User, Role } from './userTypes';
+import { User, Role } from '../../types/userTypes';
 
 interface UserRoleProps {
   token: string | null;

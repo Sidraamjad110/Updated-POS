@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon, TableCellsIcon } from '@heroicons/react/24/outline';
 import { createTable, updateTable, deleteTable } from '../../services/floorTableService';
-import { Table, Floor } from './tableTypes';
+import { Table, Floor } from '../../types/tableTypes';
 import FlashMessage from '../FlashMessage';
 
 interface TableCrudProps {

@@ -9,7 +9,7 @@ import {
   TableCellsIcon,
   Square3Stack3DIcon,
 } from '@heroicons/react/24/outline';
-import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -156,7 +156,8 @@ interface SidebarProps {
 
 // --- Sidebar Component ---
 export default function Sidebar({ className, sidebarOpen, setSidebarOpen, userPermissions, onNavigate, restaurantSlug }: SidebarProps) {
-  const pathname = usePathname();
+  const router = useRouter();
+  const pathname = router.asPath?.split('?')[0] || router.pathname;
   const { user, isLoading, profileError } = useAuth();
   const [theme, setTheme] = useState('default');
 

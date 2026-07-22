@@ -40,9 +40,14 @@ interface Order {
   }[];
 }
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.REACT_APP_API_URL ||
+  'https://imaging-larger-trusted-pci.trycloudflare.com';
+
 export const getOrders = async (token: string, logout: () => void): Promise<Order[]> => {
   try {
-    const response = await fetch('http://192.168.18.37:3000/orders/api/v1/list', {
+    const response = await fetch(`${API_BASE_URL}/orders/api/v1/list`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 

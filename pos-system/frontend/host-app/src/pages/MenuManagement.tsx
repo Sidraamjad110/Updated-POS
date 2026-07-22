@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Categories from './Categories/categories';
 import Products from './Products/products';
-import { Category, Product } from './Products/productTypes';
+import { Category, Product } from '../types/productTypes';
 
 export default function MenuManagement() {
   const { isAuthenticated, token, logout } = useAuth();

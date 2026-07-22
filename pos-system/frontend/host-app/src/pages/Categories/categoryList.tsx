@@ -7,7 +7,7 @@ import {
     XMarkIcon,
     PlusCircleIcon, TagIcon
 } from '@heroicons/react/24/outline';
-import { Category } from './categoryTypes';
+import { Category } from '../../types/categoryTypes';
 import FlashMessage from '../FlashMessage';
 import { useAuth } from '../../context/AuthContext'; // Add this import
 interface CategoryListProps {
