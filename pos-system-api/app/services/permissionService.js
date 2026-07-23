@@ -63,4 +63,76 @@ permissionService.getPermissions = async (permission_id, adminId) => {
   return serialize(permission);
 };
 
+/** Ensure every new admin has the standard permission catalog in DB. */
+permissionService.ensureDefaultPermissionsForAdmin = async (adminId) => {
+  const { ALL_PERMISSION_KEYS } = require("../utils/permissionKeys");
+  for (const key of ALL_PERMISSION_KEYS) {
+    const exists = await Permission.findOne({ where: { key, created_by: adminId } });
+    if (!exists) {
+      await Permission.create({
+        key,
+        description: key.replace(/_/g, " "),
+        created_by: adminId,
+      });
+    }
+  }
+  return true;
+};
+
+/**
+ * Pages list shape expected by frontend AuthService.fetchMainPages:
+ * [{ key, name, permissions: [{ key, ... }] }]
+ */
+permissionService.listPages = async (adminId) => {
+  await permissionService.ensureDefaultPermissionsForAdmin(adminId);
+  const permissions = await Permission.findAll({
+    where: { created_by: adminId },
+    order: [["key", "ASC"]],
+  });
+  const mapped = serialize(permissions).map((p) => ({
+    _id: p._id || p.id,
+    key: p.key,
+    name: p.key,
+    description: p.description || p.key,
+  }));
+
+  return [
+    {
+      _id: "all-pages",
+      key: "all",
+      name: "All Pages",
+      description: "All application permissions",
+      permissions: mapped,
+    },
+  ];
+};
+
+/** Permission keys for the logged-in user (admin = all; worker = role permissions). */
+permissionService.getMyPermissionKeys = async (loggedInUser) => {
+  const { ALL_PERMISSION_KEYS } = require("../utils/permissionKeys");
+  const { Role, User } = require("../models");
+
+  if (loggedInUser.user_type === "isadmin") {
+    const adminId = loggedInUser.user_id;
+    await permissionService.ensureDefaultPermissionsForAdmin(adminId);
+    const permissions = await Permission.findAll({
+      where: { created_by: adminId },
+      attributes: ["key"],
+    });
+    const keys = permissions.map((p) => p.key);
+    return keys.length ? keys : [...ALL_PERMISSION_KEYS];
+  }
+
+  const user = await User.findByPk(loggedInUser.user_id, {
+    attributes: ["id", "role_id"],
+  });
+  if (!user?.role_id) return [];
+
+  const role = await Role.findByPk(user.role_id, {
+    include: [{ association: "permissions", attributes: ["key"] }],
+  });
+  if (!role) return [];
+  return (role.permissions || []).map((p) => p.key);
+};
+
 module.exports = permissionService;

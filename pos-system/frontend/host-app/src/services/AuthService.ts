@@ -36,6 +36,42 @@ interface MainPage {
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://pos.rasantsol.com';
 const TIMEOUT_MS = 10000;
 
+/** Fallback when API pages/list is empty or unreachable — admins get full access. */
+export const ADMIN_ALL_PERMISSIONS = [
+  'can_view_dashboard',
+  'can_view_menu',
+  'can_view_orders',
+  'create_orders',
+  'can_view_rolemanagement',
+  'can_view_tablemanagement',
+  'can_add_categories',
+  'can_edit_categories',
+  'can_delete_categories',
+  'can_add_products',
+  'can_edit_products',
+  'can_delete_products',
+  'can_add_roles',
+  'can_edit_roles',
+  'can_delete_roles',
+  'can_add_users',
+  'can_edit_users',
+  'can_delete_users',
+  'assign_roles',
+  'can_add_tables',
+  'can_edit_tables',
+  'can_delete_tables',
+  'can_add_floors',
+  'can_edit_floors',
+  'can_delete_floors',
+  'manage_prepared_orders',
+  'manage_ready_orders',
+  'manage_served_orders',
+  'manage_completed_orders',
+  'manage_cancelled_orders',
+  'accept_onlineorders',
+  'Manage_order_delivery',
+];
+
 export const createSlug = (storeName: string): string => {
     return storeName
         ? storeName
@@ -123,7 +159,8 @@ export const loginUser = async (email: string, passwordOrOtp: string, isCustomer
 
     const responseData = await response.json();
     const data = responseData.data?.data || responseData.data || {};
-    const { token, ...apiUser } = data;
+    const token = data.token;
+    const apiUser = data.user || data;
 
     if (!token) {
         throw new Error('No token received');
@@ -140,29 +177,61 @@ export const loginUser = async (email: string, passwordOrOtp: string, isCustomer
 
 export const getUserPermissions = async (token: string): Promise<{ userPermissions: string[], allPermissions: string[] }> => {
     try {
-        const mainPages = await fetchMainPages(token);
-        const permissions = mainPages.flatMap((page) => page.permissions.map((perm) => perm.key));
-
         const decodedToken = decodeToken(token);
         if (!decodedToken) {
             throw new Error('Failed to decode token');
         }
 
-        const userPerms = decodedToken.user_type === 'isadmin'
-            ? permissions
-            : Array.isArray(decodedToken.permissions)
-                ? decodedToken.permissions.filter((key: string) => typeof key === 'string')
-                : [];
+        // Prefer dedicated my-permissions endpoint
+        try {
+            const myRes = await fetch(`${API_BASE_URL}/rolepermission/api/v1/my-permissions`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const myData = await myRes.json();
+            if (myRes.ok && myData.success) {
+                const keys: string[] = myData.data?.data || myData.data || [];
+                if (Array.isArray(keys) && keys.length > 0) {
+                    return {
+                        userPermissions: keys,
+                        allPermissions: decodedToken.user_type === 'isadmin' ? [...ADMIN_ALL_PERMISSIONS] : keys,
+                    };
+                }
+            }
+        } catch (e) {
+            console.warn('my-permissions unavailable, falling back', e);
+        }
 
+        let catalog: string[] = [];
+        try {
+            const mainPages = await fetchMainPages(token);
+            catalog = mainPages.flatMap((page) => (page.permissions || []).map((perm) => perm.key));
+        } catch (e) {
+            console.warn('pages/list unavailable', e);
+        }
+
+        if (decodedToken.user_type === 'isadmin') {
+            const merged = Array.from(new Set([...ADMIN_ALL_PERMISSIONS, ...catalog]));
+            return { userPermissions: merged, allPermissions: merged };
+        }
+
+        // Workers: prefer role permissions from my-permissions (already tried above).
+        // JWT does not embed permission keys.
         return {
-            userPermissions: userPerms,
-            allPermissions: permissions
+            userPermissions: [],
+            allPermissions: catalog,
         };
     } catch (error) {
         console.error('Failed to fetch permissions:', error);
+        const decodedToken = decodeToken(token);
+        if (decodedToken?.user_type === 'isadmin') {
+            return {
+                userPermissions: [...ADMIN_ALL_PERMISSIONS],
+                allPermissions: [...ADMIN_ALL_PERMISSIONS],
+            };
+        }
         return {
             userPermissions: [],
-            allPermissions: []
+            allPermissions: [],
         };
     }
 };

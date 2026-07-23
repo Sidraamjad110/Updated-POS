@@ -243,10 +243,11 @@ export default function Sidebar({ className, sidebarOpen, setSidebarOpen, userPe
       </div>
   );
 
-  // Filter navItems based on user permissions
-  const filteredNavItems = navItems.filter(item =>
-      item.permission ? userPermissions.includes(item.permission) : true
-  );
+  // Admins always see every page; workers filtered by permission keys
+  const filteredNavItems =
+    user?.user_type === 'isadmin'
+      ? navItems
+      : navItems.filter((item) => (item.permission ? userPermissions.includes(item.permission) : true));
 
   return (
       <aside
@@ -285,9 +286,9 @@ export default function Sidebar({ className, sidebarOpen, setSidebarOpen, userPe
                     <Link
                         key={name}
                         href={fullHref}
-                        onClick={(e) => {
+                      onClick={(e) => {
                           e.preventDefault();
-                          onNavigate(href);
+                          onNavigate(href.endsWith('/') ? href : `${href}/`);
                         }}
                         className={`group relative flex items-center rounded-lg transition-colors duration-200 ${
                             isActive

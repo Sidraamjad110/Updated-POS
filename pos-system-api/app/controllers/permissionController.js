@@ -36,4 +36,15 @@ permissionController.getPermissions = async (req, res, next) => {
   handleResponse(res, promise, "");
 };
 
+permissionController.listPages = async (req, res) => {
+  const adminId = getAdminId(req);
+  const promise = permissionService.listPages(adminId);
+  handleResponse(res, promise, "");
+};
+
+permissionController.getMyPermissions = async (req, res) => {
+  const promise = permissionService.getMyPermissionKeys(req.user);
+  handleResponse(res, promise, "Permissions retrieved");
+};
+
 module.exports = permissionController;

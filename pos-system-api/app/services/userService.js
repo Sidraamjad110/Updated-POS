@@ -147,6 +147,13 @@ userService.createAdmin = async (userData) => {
       });
     }
 
+    try {
+      const permissionService = require("./permissionService");
+      await permissionService.ensureDefaultPermissionsForAdmin(newAdmin.id);
+    } catch (seedErr) {
+      console.error("Failed to seed default permissions for admin:", seedErr.message || seedErr);
+    }
+
     return await findUserByIdPopulated(newAdmin.id);
   } catch (error) {
     const readable = convertErrorIntoReadableForm(error);

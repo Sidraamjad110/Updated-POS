@@ -14,6 +14,8 @@ const {
   deletePermission,
   updatePermissions,
   getPermissions,
+  listPages,
+  getMyPermissions,
 } = require("../../controllers/permissionController");
 const { AVAILABLE_AUTHS } = require("../../utils/constants");
 
@@ -22,6 +24,30 @@ const apiPrefix = "/rolepermission/api/v1/";
 const { authHeader } = require("../../utils/utils");
 
 const routes = [
+  {
+    method: "GET",
+    path: `${apiPrefix}pages/list`,
+    auth: AVAILABLE_AUTHS.AUTH_TOKEN,
+    joiSchemaForSwagger: {
+      headers: authHeader,
+      group: "RolePermission",
+      description: "List permission pages (used by frontend sidebar/access control)",
+      model: "ListPages",
+    },
+    handler: listPages,
+  },
+  {
+    method: "GET",
+    path: `${apiPrefix}my-permissions`,
+    auth: AVAILABLE_AUTHS.AUTH_TOKEN,
+    joiSchemaForSwagger: {
+      headers: authHeader,
+      group: "RolePermission",
+      description: "Permission keys for the logged-in user",
+      model: "MyPermissions",
+    },
+    handler: getMyPermissions,
+  },
   // Create Role
   {
     method: "POST",
