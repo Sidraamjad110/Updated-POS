@@ -32,7 +32,7 @@ const handleApiError = (response: any, error: string | null, logout: () => void)
   return '';
 };
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://192.168.18.37:3000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://pos.rasantsol.com';
 
 export const fetchProducts = async (
   token: string,

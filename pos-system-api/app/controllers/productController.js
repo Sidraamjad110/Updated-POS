@@ -38,4 +38,16 @@ productController.getDeactiveProducts = async (req, res, next) => {
   handleResponse(res, promise, "");
 };
 
+productController.getProductImage = async (req, res, next) => {
+  try {
+    const image = await productService.getProductImage(req.params.id);
+    res.setHeader("Content-Type", image.mime);
+    res.setHeader("Cache-Control", "public, max-age=86400");
+    return res.send(Buffer.isBuffer(image.data) ? image.data : Buffer.from(image.data));
+  } catch (err) {
+    const status = err.status || err.statusCode || 500;
+    return res.status(status).json({ success: false, message: err.message || "Image error" });
+  }
+};
+
 module.exports = productController;

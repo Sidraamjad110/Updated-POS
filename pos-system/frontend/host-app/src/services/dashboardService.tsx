@@ -43,7 +43,7 @@ interface Order {
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   process.env.REACT_APP_API_URL ||
-  'https://imaging-larger-trusted-pci.trycloudflare.com';
+  'https://pos.rasantsol.com';
 
 export const getOrders = async (token: string, logout: () => void): Promise<Order[]> => {
   try {

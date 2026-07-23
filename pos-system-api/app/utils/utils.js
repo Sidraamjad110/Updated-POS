@@ -1,10 +1,9 @@
 const argon2 = require("argon2");
 const Joi = require("joi");
 const createError = require("http-errors");
-const Order = require("../models/Order");
-const OrderItem = require("../models/OrderItem");
-const Product = require("../models/Product");
-const Queue = require("../models/Queue");
+const { Op } = require("sequelize");
+const { Order, OrderItem, Product, Queue } = require("../models");
+const { serialize } = require("./serialize");
 
 let commonFunctions = {};
 
@@ -102,15 +101,16 @@ commonFunctions.comparePassword = async (plain, hashed) => {
 };
 
 commonFunctions.calculateOrderTotals = async (items) => {
-  let total_amount = 0, totalPreparationTime = 0;
+  let total_amount = 0;
+  let totalPreparationTime = 0;
   for (const item of items) {
-    const product = await Product.findById(item.product_id);
+    const product = await Product.findByPk(item.product_id);
     if (!product) throw createError(404, `Product ${item.product_id} not found`);
     if (!item.quantity || item.quantity <= 0) throw createError(400, "Invalid quantity");
     if (!product.time_required || product.time_required < 0) {
       throw createError(400, `Invalid time_required for product ${product.name}`);
     }
-    item.sub_total = product.price * item.quantity;
+    item.sub_total = Number(product.price) * item.quantity;
     total_amount += item.sub_total;
     totalPreparationTime += product.time_required * item.quantity;
   }
@@ -122,15 +122,22 @@ commonFunctions.calculateOrderTotals = async (items) => {
 
 commonFunctions.createQueueEntry = async (order, totalPreparationTime, user) => {
   const confirmedAt = new Date();
-  const existingQueueEntries = await Queue.find({ created_by: user.user_id })
-    .sort({ estimated_completion: -1 })
-    .limit(1);
+  const existingQueueEntries = await Queue.findAll({
+    where: { created_by: user.user_id },
+    order: [["estimated_completion", "DESC"]],
+    limit: 1,
+  });
 
-  let estimatedCompletion = existingQueueEntries.length > 0 &&
+  let estimatedCompletion =
+    existingQueueEntries.length > 0 &&
     existingQueueEntries[0].estimated_completion > confirmedAt &&
-    existingQueueEntries[0].estimated_completion < new Date(confirmedAt.getTime() + 24 * 60 * 60000)
-    ? new Date(existingQueueEntries[0].estimated_completion.getTime() + totalPreparationTime * 60000)
-    : new Date(confirmedAt.getTime() + totalPreparationTime * 60000);
+    existingQueueEntries[0].estimated_completion <
+      new Date(confirmedAt.getTime() + 24 * 60 * 60000)
+      ? new Date(
+          existingQueueEntries[0].estimated_completion.getTime() +
+            totalPreparationTime * 60000
+        )
+      : new Date(confirmedAt.getTime() + totalPreparationTime * 60000);
 
   console.log(`Creating queue entry for order ${order.order_number}:`, {
     confirmedAt: confirmedAt.toISOString(),
@@ -138,8 +145,8 @@ commonFunctions.createQueueEntry = async (order, totalPreparationTime, user) => 
     estimatedCompletion: estimatedCompletion.toISOString(),
   });
 
-  const queueEntry = new Queue({
-    order_id: order._id,
+  await Queue.create({
+    order_id: order.id,
     order_number: order.order_number,
     preparation_time: totalPreparationTime,
     confirmed_at: confirmedAt,
@@ -147,44 +154,48 @@ commonFunctions.createQueueEntry = async (order, totalPreparationTime, user) => 
     created_by: user.user_id,
   });
 
-  await queueEntry.save();
   return totalPreparationTime;
 };
 
 commonFunctions.formatOrderResponse = async (order, includeItems = true) => {
-  const response = {
-    ...order._doc,
-    customer_name: order.customer_name,
-    service_type: order.service_type,
-    notification: order.notification,
-    notification_status: order.notification_status,
-  };
+  const response = serialize(order);
+  response.customer_name = order.customer_name;
+  response.service_type = order.service_type;
+  response.notification = order.notification;
+  response.notification_status = order.notification_status;
+
   if (includeItems) {
-    const orderItems = await OrderItem.find({ order_id: order._id }).populate("product_id");
+    const orderItems = await OrderItem.findAll({
+      where: { order_id: order.id },
+      include: [{ model: Product, as: "product" }],
+    });
     response.items = orderItems.map((item) => ({
-      product: item.product_id,
+      product: serialize(item.product),
       quantity: item.quantity,
-      sub_total: item.sub_total,
+      sub_total: Number(item.sub_total),
     }));
   }
   return response;
 };
 
-commonFunctions.formatQueueResponse = async (queue, user) => {
+commonFunctions.formatQueueResponse = async (queue) => {
   const now = new Date();
   const validQueue = queue.filter(
     (entry) =>
-      entry.order_id !== null &&
-      entry.order_id._id !== null &&
-      ["processing"].includes(entry.order_id.status)
+      entry.order !== null &&
+      entry.order.id !== null &&
+      ["processing"].includes(entry.order.status)
   );
 
   if (validQueue.length === 0) {
     return { message: "No orders in queue" };
   }
 
-  const orderIds = validQueue.map((entry) => entry.order_id._id);
-  const orderItems = await OrderItem.find({ order_id: { $in: orderIds } }).populate("product_id");
+  const orderIds = validQueue.map((entry) => entry.order.id);
+  const orderItems = await OrderItem.findAll({
+    where: { order_id: { [Op.in]: orderIds } },
+    include: [{ model: Product, as: "product", attributes: ["id", "name"] }],
+  });
 
   return {
     statusCode: 200,
@@ -193,7 +204,11 @@ commonFunctions.formatQueueResponse = async (queue, user) => {
     type: 1,
     data: {
       data: validQueue.map((entry) => {
-        const timeLeft = Math.max(0, Math.round((entry.estimated_completion.getTime() - now.getTime()) / 60000)); // Changed from Math.ceil to Math.round
+        const orderData = entry.order;
+        const timeLeft = Math.max(
+          0,
+          Math.round((entry.estimated_completion.getTime() - now.getTime()) / 60000)
+        );
         const estimatedTime = entry.estimated_completion.toLocaleString("en-US", {
           hour: "numeric",
           minute: "2-digit",
@@ -201,22 +216,22 @@ commonFunctions.formatQueueResponse = async (queue, user) => {
           timeZone: "Asia/Karachi",
         });
         const items = orderItems
-          .filter((item) => item.order_id.toString() === entry.order_id._id.toString())
+          .filter((item) => item.order_id === orderData.id)
           .map((item) => ({
-            product: { _id: item.product_id._id, name: item.product_id.name },
+            product: { _id: item.product.id, name: item.product.name },
             quantity: item.quantity,
           }));
         return {
           order_number: entry.order_number,
           time_left: timeLeft,
           estimated_time: estimatedTime,
-          order_id: entry.order_id._id,
-          order_type: entry.order_id.order_type,
-          status: entry.order_id.status,
-          customer_name: entry.order_id.customer_name,
-          service_type: entry.order_id.service_type,
-          notification: entry.order_id.notification,
-          notification_status: entry.order_id.notification_status,
+          order_id: orderData.id,
+          order_type: orderData.order_type,
+          status: orderData.status,
+          customer_name: orderData.customer_name,
+          service_type: orderData.service_type,
+          notification: orderData.notification,
+          notification_status: orderData.notification_status,
           items,
         };
       }),
@@ -225,7 +240,7 @@ commonFunctions.formatQueueResponse = async (queue, user) => {
 };
 
 commonFunctions.checkOrderPermission = async (orderId, user, field = "created_by") => {
-  const order = await Order.findOne({ _id: orderId, [field]: user.user_id });
+  const order = await Order.findOne({ where: { id: orderId, [field]: user.user_id } });
   if (!order) throw createError(404, "Order not found or no permission");
   return order;
 };

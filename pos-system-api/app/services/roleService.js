@@ -1,30 +1,47 @@
 const createError = require("http-errors");
-const Role = require("../models/Role");
-const Permission = require("../models/Permission");
-const mongoose = require("mongoose");
+const { Op } = require("sequelize");
+const { Role, Permission } = require("../models");
+const { serialize, isValidId } = require("../utils/serialize");
 
 const roleService = {};
+
+async function loadRoleWithPermissions(role) {
+  const permissions = await role.getPermissions({ attributes: ["id", "key", "description"] });
+  const data = serialize(role);
+  data.permissions = serialize(permissions);
+  return data;
+}
 
 roleService.createRole = async (name, description, createdBy) => {
   if (!name) throw createError(400, "Role name is required");
   if (!createdBy) throw createError(400, "created_by is required");
 
-  const exists = await Role.findOne({ name, created_by: createdBy });
+  const exists = await Role.findOne({ where: { name, created_by: createdBy } });
   if (exists) throw createError(409, "Role already exists");
 
-  const role = new Role({ name, description, permissions: [], created_by: createdBy });
-  await role.save();
-  return role;
+  const role = await Role.create({ name, description, created_by: createdBy });
+  const data = serialize(role);
+  data.permissions = [];
+  return data;
 };
 
 roleService.deleteRole = async (role_id, adminId) => {
-  const deleted = await Role.findOneAndDelete({ _id: role_id, created_by: adminId });
-  if (!deleted) throw createError(404, "Role not found");
+  if (!isValidId(role_id)) throw createError(400, "Invalid role ID");
+
+  const role = await Role.findOne({ where: { id: role_id, created_by: adminId } });
+  if (!role) throw createError(404, "Role not found");
+
+  await role.setPermissions([]);
+  await role.destroy();
   return true;
 };
 
 roleService.getRoles = async (adminId) => {
-  return await Role.find({ created_by: adminId }).populate("permissions", "key description");
+  const roles = await Role.findAll({
+    where: { created_by: adminId },
+    include: [{ model: Permission, as: "permissions", attributes: ["id", "key", "description"] }],
+  });
+  return serialize(roles);
 };
 
 roleService.assignPermissionsToRole = async (role_id, permission_ids, adminId) => {
@@ -32,18 +49,20 @@ roleService.assignPermissionsToRole = async (role_id, permission_ids, adminId) =
     throw createError(400, "role_id and permission_ids are required");
   }
 
-  const role = await Role.findOne({ _id: role_id, created_by: adminId });
+  const role = await Role.findOne({ where: { id: role_id, created_by: adminId } });
   if (!role) throw createError(404, "Role not found");
 
-  const existingPermissions = await Permission.find({
-    _id: { $in: permission_ids },
-    created_by: adminId,
-  }).select("_id");
+  const validIds = permission_ids.filter((id) => isValidId(id));
+  const existingPermissions = await Permission.findAll({
+    where: { id: { [Op.in]: validIds }, created_by: adminId },
+    attributes: ["id"],
+  });
 
-  const validPermissionIds = existingPermissions.map(p => p._id.toString());
-  const invalidPermissionIds = permission_ids.filter(id => !validPermissionIds.includes(id));
+  const validPermissionIds = existingPermissions.map((p) => p.id);
+  const invalidPermissionIds = permission_ids.filter((id) => !validPermissionIds.includes(id));
 
-  const currentPermissionIds = new Set(role.permissions.map(id => id.toString()));
+  const currentPermissions = await role.getPermissions({ attributes: ["id"] });
+  const currentPermissionIds = new Set(currentPermissions.map((p) => p.id));
   const alreadyAssigned = [];
   const newPermissions = [];
 
@@ -59,59 +78,68 @@ roleService.assignPermissionsToRole = async (role_id, permission_ids, adminId) =
     throw createError(400, `Permissions already assigned: ${alreadyAssigned.join(", ")}`);
   }
 
-  role.permissions.push(...newPermissions);
-  await role.save();
+  if (newPermissions.length > 0) {
+    await role.addPermissions(newPermissions);
+  }
 
-  return { role, ignored_invalid_permission_ids: invalidPermissionIds };
+  const roleData = await loadRoleWithPermissions(role);
+  return { role: roleData, ignored_invalid_permission_ids: invalidPermissionIds };
 };
 
 roleService.updatePermissionsForRole = async (role_id, addIds = [], removeIds = [], description, adminId) => {
   if (!role_id) throw createError(400, "role_id is required");
 
-  const role = await Role.findOne({ _id: role_id, created_by: adminId });
+  const role = await Role.findOne({ where: { id: role_id, created_by: adminId } });
   if (!role) throw createError(404, "Role not found");
 
-  const currentPermissionIds = role.permissions.map(id => id.toString());
-  const existingPermissions = await Permission.find({
-    _id: { $in: currentPermissionIds },
-    created_by: adminId,
-  }).select("_id");
+  const currentPermissions = await role.getPermissions({ attributes: ["id"] });
+  const currentPermissionIds = currentPermissions.map((p) => p.id);
 
-  const validExistingPermissionIds = new Set(existingPermissions.map(p => p._id.toString()));
-  role.permissions = role.permissions.filter(id => validExistingPermissionIds.has(id.toString()));
+  const validExisting = await Permission.findAll({
+    where: { id: { [Op.in]: currentPermissionIds }, created_by: adminId },
+    attributes: ["id"],
+  });
+  const validExistingPermissionIds = new Set(validExisting.map((p) => p.id));
+
+  const updatedPermissions = new Set(
+    currentPermissionIds.filter((id) => validExistingPermissionIds.has(id))
+  );
 
   const allPermissionIds = [...new Set([...addIds, ...removeIds])];
-  const validObjectIds = allPermissionIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+  const validInputIds = allPermissionIds.filter((id) => isValidId(id));
 
-  const newPermissions = await Permission.find({
-    _id: { $in: validObjectIds },
-    created_by: adminId,
-  }).select("_id");
+  const newPermissions = await Permission.findAll({
+    where: { id: { [Op.in]: validInputIds }, created_by: adminId },
+    attributes: ["id"],
+  });
 
-  const validIds = newPermissions.map(p => p._id.toString());
-  const invalidIds = allPermissionIds.filter(id => !validIds.includes(id));
+  const validIds = newPermissions.map((p) => p.id);
+  const invalidIds = allPermissionIds.filter((id) => !validIds.includes(id));
 
-  const updatedPermissions = new Set(role.permissions.map(id => id.toString()));
+  addIds.filter((id) => validIds.includes(id)).forEach((id) => updatedPermissions.add(id));
+  removeIds.filter((id) => validIds.includes(id)).forEach((id) => updatedPermissions.delete(id));
 
-  addIds.filter(id => validIds.includes(id)).forEach(id => updatedPermissions.add(id));
-  removeIds.filter(id => validIds.includes(id)).forEach(id => updatedPermissions.delete(id));
+  await role.setPermissions(Array.from(updatedPermissions));
 
-  role.permissions = Array.from(updatedPermissions);
-  if (description !== undefined) role.description = description;
+  if (description !== undefined) {
+    role.description = description;
+    await role.save();
+  }
 
-  await role.save();
-
-  return { role, removed_invalid_permission_ids: invalidIds };
+  const roleData = await loadRoleWithPermissions(role);
+  return { role: roleData, removed_invalid_permission_ids: invalidIds };
 };
 
 roleService.updateRole = async (role_id, name, description, adminId) => {
   if (!role_id) throw createError(400, "role_id is required");
 
-  const role = await Role.findOne({ _id: role_id, created_by: adminId });
+  const role = await Role.findOne({ where: { id: role_id, created_by: adminId } });
   if (!role) throw createError(404, "Role not found");
 
   if (name) {
-    const exists = await Role.findOne({ name, created_by: adminId, _id: { $ne: role_id } });
+    const exists = await Role.findOne({
+      where: { name, created_by: adminId, id: { [Op.ne]: role_id } },
+    });
     if (exists) throw createError(409, "Role name already exists");
     role.name = name;
   }
@@ -119,7 +147,7 @@ roleService.updateRole = async (role_id, name, description, adminId) => {
   if (description !== undefined) role.description = description;
 
   await role.save();
-  return role;
+  return serialize(role);
 };
 
 module.exports = roleService;

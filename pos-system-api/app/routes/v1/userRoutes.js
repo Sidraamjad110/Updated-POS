@@ -1,8 +1,8 @@
 const Joi = require("joi");
-const { createUser, getAllUsers, login, deleteUser, createAdmin, assignRole, updateProfile, updateAdminProfile, getUserDetails, updateUserStatus } = require("../../controllers/userController");
+const { createUser, getAllUsers, login, deleteUser, createAdmin, assignRole, updateProfile, updateAdminProfile, getUserDetails, updateUserStatus, getLogoImage, getStoreLogoImage, getPublicStore } = require("../../controllers/userController");
 const { AVAILABLE_AUTHS } = require("../../utils/constants");
 const { authHeader, userinfo, ouserinfo } = require("../../utils/utils");
-const { upload, uploadToCloudinary } = require("../../middleware/upload");
+const { upload, attachAdminLogoBytes } = require("../../middleware/upload");
 
 const apiPrefix = "/users/api/v1/";
 
@@ -15,6 +15,36 @@ const address = Joi.object({
 });
 
 let routes = [
+  {
+    method: "GET",
+    path: `${apiPrefix}logo/:id`,
+    joiSchemaForSwagger: {
+      group: "Users",
+      description: "Get admin logo image bytes from the database",
+      model: "GetUserLogo",
+    },
+    handler: getLogoImage,
+  },
+  {
+    method: "GET",
+    path: `${apiPrefix}store-logo/:id`,
+    joiSchemaForSwagger: {
+      group: "Users",
+      description: "Get store logo image bytes from the database",
+      model: "GetStoreLogo",
+    },
+    handler: getStoreLogoImage,
+  },
+  {
+    method: "GET",
+    path: `${apiPrefix}public/store/:slug`,
+    joiSchemaForSwagger: {
+      group: "Users",
+      description: "Public store details by slug",
+      model: "GetPublicStore",
+    },
+    handler: getPublicStore,
+  },
   {
     method: "POST",
     path: `${apiPrefix}create`,
@@ -46,22 +76,21 @@ let routes = [
         upload.fields([
           { name: "logo", maxCount: 1 },
           { name: "store_logo", maxCount: 1 },
-        ])(req, res, next);
-      },
-      async (req, res, next) => {
-        try {
-          if (req.files?.logo) {
-            req.body.logoUrl = await uploadToCloudinary(req.files.logo[0]);
-          }
-          if (req.files?.store_logo) {
-            req.body.store_logo = await uploadToCloudinary(req.files.store_logo[0]);
+        ])(req, res, (err) => {
+          if (err) {
+            console.error("Multer error on create-admin:", err.message || err);
+            return res.status(400).json({
+              statusCode: 400,
+              message: err.message || "Invalid image upload",
+              success: false,
+              error: "BAD_REQUEST",
+              type: 0,
+            });
           }
           next();
-        } catch (error) {
-          console.error("Cloudinary upload error:", error);
-          return res.status(500).json({ error: "Failed to upload logo or store logo" });
-        }
+        });
       },
+      attachAdminLogoBytes,
     ],
     joiSchemaForSwagger: {
       headers: Joi.object({}).unknown(),
@@ -167,22 +196,21 @@ let routes = [
         upload.fields([
           { name: "logo", maxCount: 1 },
           { name: "store_logo", maxCount: 1 },
-        ])(req, res, next);
-      },
-      async (req, res, next) => {
-        try {
-          if (req.files?.logo) {
-            req.body.logoUrl = await uploadToCloudinary(req.files.logo[0]);
-          }
-          if (req.files?.store_logo) {
-            req.body.store_logo = await uploadToCloudinary(req.files.store_logo[0]);
+        ])(req, res, (err) => {
+          if (err) {
+            console.error("Multer error on admin-profile:", err.message || err);
+            return res.status(400).json({
+              statusCode: 400,
+              message: err.message || "Invalid image upload",
+              success: false,
+              error: "BAD_REQUEST",
+              type: 0,
+            });
           }
           next();
-        } catch (error) {
-          console.error("Cloudinary upload error:", error);
-          return res.status(500).json({ error: "Failed to upload logo or store logo" });
-        }
+        });
       },
+      attachAdminLogoBytes,
     ],
     joiSchemaForSwagger: {
       headers: authHeader,

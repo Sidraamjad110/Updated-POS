@@ -199,7 +199,7 @@ const handleApiError = (response: ApiResponse<any>, logout: () => void): string 
   return '';
 };
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://192.168.18.37:3000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://pos.rasantsol.com';
 
 export const createOrder = async (
   token: string,

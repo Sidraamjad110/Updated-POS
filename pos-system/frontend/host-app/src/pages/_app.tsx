@@ -3,7 +3,8 @@ import { useState, useEffect, useRef } from 'react';
 import { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 import { AuthProvider, useAuth } from '../context/AuthContext';
-import 'shared-tailwind/styles';
+import '../styles/shared-styles.css';
+import '../styles/global.css';
 import '@fontsource/nunito';
 import {
   fetchUserDetails,
@@ -21,37 +22,19 @@ import {
 } from '../services/AppService';
 import Sidebar from '../components/Sidebar';
 
-const FallbackHeader = () => <div>Header failed to load</div>;
-const FallbackFooter = () => <div>Footer failed to load</div>;
+const Header = dynamic(() => import('../components/Header'), { ssr: false });
+const Footer = dynamic(() => import('../components/Footer'), { ssr: false });
 
-const Header = dynamic(
-    () =>
-      import('remoteApp/Header')
-        .catch((err) => {
-          console.error('Header load error:', err);
-          return { default: FallbackHeader };
-        }),
-    { ssr: false }
-);
-
-const Footer = dynamic(
-    () =>
-      import('remoteApp/Footer')
-        .catch((err) => {
-          console.error('Footer load error:', err);
-          return { default: FallbackFooter };
-        }),
-    { ssr: false }
-);
-
-const publicRoutes = ['/Registration/login', '/Registration/forgotPassword', '/Registration/registerAdmin', '/public/[slug]', '/NoAccess'];
+const publicRoutes = ['/', '/Registration/login', '/Registration/forgotPassword', '/Registration/registerAdmin', '/public/store', '/public/orderSummary', '/NoAccess'];
 
 const isPublicRoute = (pathname: string | null): boolean => {
   if (!pathname) return false;
-  if (pathname.startsWith('/public/')) return true;
+  const clean = pathname.split('?')[0].replace(/\/$/, '') || '/';
+  if (clean === '/') return true;
+  if (clean.startsWith('/public')) return true;
   return publicRoutes.some(route => {
-    if (route === '/public/[slug]') return pathname.startsWith('/public/');
-    return pathname === route || pathname.startsWith(route);
+    const r = route.replace(/\/$/, '') || '/';
+    return clean === r || clean.startsWith(r + '/');
   });
 };
 
@@ -135,31 +118,17 @@ function AppContent({ Component, pageProps, router }: AppProps) { // Add router 
       setThemeLoaded(true);
 
       if (isAuthenticated && actualPathname && !actualPathname.startsWith('/public/') && !publicRoutes.includes(actualPathname)) {
-        const expectedSlugPrefix = `/${slug}`;
         if (userType === 'rider') {
           if (actualPathname === '/' || actualPathname.includes('/Dashboard')) {
-            const ordersPath = `/${slug}/Orders/orders`;
-            nextRouter.replace(ordersPath);
+            nextRouter.replace('/Orders/orders');
             return;
           }
           if (!actualPathname.includes('/Orders')) {
-            const ordersPath = `/${slug}/Orders/orders`;
-            nextRouter.replace(ordersPath);
+            nextRouter.replace('/Orders/orders');
             return;
           }
-        } else {
-          if (actualPathname === '/') {
-            const newPath = `/${slug}/Dashboard/dashboard`;
-            nextRouter.replace(newPath);
-          } else if (!actualPathname.startsWith(expectedSlugPrefix)) {
-            let pathWithoutAnySlug = actualPathname.replace(/^\/[^\/]+/, '');
-            if (!pathWithoutAnySlug || pathWithoutAnySlug.toLowerCase() === '/dashboard') {
-              pathWithoutAnySlug = '/Dashboard/dashboard';
-            }
-            const newPath = `/${slug}${pathWithoutAnySlug}`;
-            console.log('Redirecting from', actualPathname, 'to', newPath);
-            nextRouter.replace(newPath);
-          }
+        } else if (actualPathname === '/') {
+          nextRouter.replace('/Dashboard/dashboard');
         }
       }
 
@@ -267,19 +236,16 @@ function AppContent({ Component, pageProps, router }: AppProps) { // Add router 
 
     if (!isAuthenticated && !isCurrentRoutePublic) {
       console.log('Redirecting to login: User not authenticated for protected route');
-      router.replace('/Registration/login');
+      router.replace('/Registration/login/');
       return;
     }
 
-    if (isAuthenticated && pathWithoutSlug === '/Registration/login' && !initialLoad) {
+    if (isAuthenticated && (pathWithoutSlug === '/Registration/login' || pathWithoutSlug === '/' || pathWithoutSlug === '') && !initialLoad) {
       console.log('Redirecting based on user type: User authenticated on login page');
-      const slug = currentSlug || localStorage.getItem('restaurantSlug') || '';
       if (user?.user_type === 'rider') {
-        const ordersPath = slug ? `/${slug}/Orders/orders` : '/Orders/orders';
-        router.replace(ordersPath);
+        router.replace('/Orders/orders/');
       } else {
-        const dashboardPath = slug ? `/${slug}/Dashboard/dashboard` : '/Dashboard/dashboard';
-        router.replace(dashboardPath);
+        router.replace('/Dashboard/dashboard/');
       }
       return;
     }
@@ -321,17 +287,15 @@ function AppContent({ Component, pageProps, router }: AppProps) { // Add router 
       clearStoredSettings();
 
       console.log('User logged out successfully');
-      await router.replace('/Registration/login');
+      await router.replace('/Registration/login/');
     } catch (error) {
       console.error('Error during logout:', error);
-      window.location.href = '/Registration/login';
+      window.location.href = '/Registration/login/';
     }
   };
 
   const navigateWithSlug = (path: string) => {
-    const slug = currentSlug || extractedSlug || '';
-    const fullPath = slug ? `/${slug}${path}` : path;
-    router.push(fullPath);
+    router.push(path);
   };
 
   useEffect(() => {
@@ -346,9 +310,10 @@ function AppContent({ Component, pageProps, router }: AppProps) { // Add router 
 
 
     const updateFaviconForPublicRoute = async () => {
-      if (pathname && pathname.startsWith('/public/') && extractedSlug) {
+      const publicSlug = typeof nextRouter.query.slug === 'string' ? nextRouter.query.slug : extractedSlug;
+      if (pathname && pathname.startsWith('/public/') && publicSlug) {
         try {
-          const storeDetails = await fetchPublicStoreDetails(extractedSlug);
+          const storeDetails = await fetchPublicStoreDetails(publicSlug);
           const storeLogo = storeDetails?.store_logo;
           if (storeLogo && faviconLink) {
             faviconLink.href = storeLogo;
@@ -369,7 +334,8 @@ function AppContent({ Component, pageProps, router }: AppProps) { // Add router 
 
     let title = '';
     if (pathname && pathname.startsWith('/public/')) {
-      title = extractedSlug ? extractedSlug.charAt(0).toUpperCase() + extractedSlug.slice(1) : 'Restaurant';
+      const publicSlug = typeof nextRouter.query.slug === 'string' ? nextRouter.query.slug : extractedSlug;
+      title = publicSlug ? publicSlug.charAt(0).toUpperCase() + publicSlug.slice(1) : 'Restaurant';
     } else {
       const pageName = pathWithoutSlug
           .split('/')
@@ -403,15 +369,13 @@ function AppContent({ Component, pageProps, router }: AppProps) { // Add router 
 
   if (!isAuthenticated) {
     console.log('Redirecting to login: User not authenticated');
-    router.replace('/Registration/login');
+    router.replace('/Registration/login/');
     return null;
   }
 
-  if (isAuthenticated && pathWithoutSlug === '/Registration/login') {
+  if (isAuthenticated && (pathWithoutSlug === '/Registration/login' || pathWithoutSlug === '/' || pathWithoutSlug === '')) {
     console.log('Redirecting to dashboard: User authenticated on login page');
-    const slug = currentSlug || localStorage.getItem('restaurantSlug') || '';
-    const dashboardPath = slug ? `/${slug}/Dashboard/dashboard` : '/Dashboard/dashboard';
-    router.replace(dashboardPath);
+    router.replace(user?.user_type === 'rider' ? '/Orders/orders/' : '/Dashboard/dashboard/');
     return null;
   }
 
@@ -444,7 +408,7 @@ function AppContent({ Component, pageProps, router }: AppProps) { // Add router 
             token={token}
             user={normalizedUser}
             className={headerHeight}
-            restaurantSlug={extractedSlug}
+            restaurantSlug={currentSlug || extractedSlug}
             storeName={storeName}
         />
         <div className="flex flex-1 overflow-hidden mt-10" style={{ backgroundColor: 'var(--background-color)' }}>
@@ -454,7 +418,7 @@ function AppContent({ Component, pageProps, router }: AppProps) { // Add router 
               sidebarOpen={sidebarOpen}
               userPermissions={userPermissions}
               onNavigate={navigateWithSlug}
-              restaurantSlug={extractedSlug}
+              restaurantSlug={currentSlug || extractedSlug}
           />
           <main
               className={`flex-1 ${contentMargin} overflow-auto p-4 transition-all duration-300 ease-in-out main-content-container`}
@@ -474,14 +438,14 @@ function AppContent({ Component, pageProps, router }: AppProps) { // Add router 
                   </div>
                 </div>
             ) : (
-                <Component {...pageProps} key={pathname} currentCurrency={currentCurrency} restaurantSlug={extractedSlug} storeName={storeName} />
+                <Component {...pageProps} key={pathname} currentCurrency={currentCurrency} restaurantSlug={currentSlug || extractedSlug} storeName={storeName} />
             )}
           </main>
         </div>
         <Footer
             className={`p-4 shadow-inner ${contentMargin} transition-all duration-300 ease-in-out`}
             sidebarOpen={sidebarOpen}
-            restaurantSlug={extractedSlug}
+            restaurantSlug={currentSlug || extractedSlug}
         />
       </div>
   );

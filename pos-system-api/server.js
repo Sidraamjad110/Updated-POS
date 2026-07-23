@@ -17,9 +17,7 @@ startNodeServer()
   .then(() => {
     console.log("Node server running on: ", CONFIG.server.URL);
     console.log("Swagger API docs available at: ", `${CONFIG.server.URL}/api-docs`);
-    console.log("Cloudinary config:", {
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    });
+    console.log("Images: stored as MySQL BLOBs (no Cloudinary)");
   })
   .catch((err) => {
     console.log("Error in starting server: ", err);

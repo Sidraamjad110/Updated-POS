@@ -73,7 +73,7 @@ export interface User {
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   process.env.REACT_APP_API_URL ||
-  'https://imaging-larger-trusted-pci.trycloudflare.com';
+  'https://pos.rasantsol.com';
 const TIMEOUT = 10000; // 10 seconds
 
 const handleApiError = (response: ApiResponse, logout?: () => void): string => {

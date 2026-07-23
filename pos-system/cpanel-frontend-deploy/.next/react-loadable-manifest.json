@@ -1,0 +1,15 @@
+{
+  "_app.tsx -> ../components/Footer": {
+    "id": 37799,
+    "files": [
+      "static/chunks/7799.7d039551382d76f5.js"
+    ]
+  },
+  "_app.tsx -> ../components/Header": {
+    "id": 82379,
+    "files": [
+      "static/chunks/9211.e3ab3f0fd085c69f.js",
+      "static/chunks/2379.e1838575f59069e9.js"
+    ]
+  }
+}

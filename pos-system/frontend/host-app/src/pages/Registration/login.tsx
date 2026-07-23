@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { useAuth } from '../../context/AuthContext';
 import { adminAuthService } from '../../services/adminAuthService';
 import FlashMessage from '../FlashMessage';
@@ -109,7 +109,7 @@ export default function Login() {
       setPassword('');
       setErrors({});
       setTouched({});
-      router.replace('/Dashboard/dashboard');
+      router.replace('/Dashboard/dashboard/');
     } catch (error: any) {
       console.error('Login error:', error);
       setFlashMessage({
@@ -122,11 +122,11 @@ export default function Login() {
   };
 
   const handleRegisterRedirect = () => {
-    router.push('/Registration/registerAdmin');
+    router.push('/Registration/registerAdmin/');
   };
 
   const handleForgotPasswordRedirect = () => {
-    router.push('/Registration/forgotPassword');
+    router.push('/Registration/forgotPassword/');
   };
 
   return (

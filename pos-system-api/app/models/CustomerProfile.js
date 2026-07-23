@@ -1,12 +1,24 @@
-const mongoose = require("mongoose");
+const { DataTypes } = require("sequelize");
+const { v4: uuidv4 } = require("uuid");
+const sequelize = require("../db/sequelize");
 
-const customerProfileSchema = new mongoose.Schema({
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, unique: true },
-  phone_number: { type: String, required: true },
-  address: { type: String, required: true },
-  loyalty_points: { type: Number, default: 0 },
-}, { timestamps: true });
-
-const CustomerProfile = mongoose.model("CustomerProfile", customerProfileSchema);
+const CustomerProfile = sequelize.define(
+  "CustomerProfile",
+  {
+    id: {
+      type: DataTypes.CHAR(36),
+      primaryKey: true,
+      defaultValue: () => uuidv4(),
+    },
+    user_id: { type: DataTypes.CHAR(36), allowNull: false, unique: true },
+    phone_number: { type: DataTypes.STRING(50), allowNull: false },
+    address: { type: DataTypes.TEXT, allowNull: false },
+    loyalty_points: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+  },
+  {
+    tableName: "customer_profiles",
+    timestamps: true,
+  }
+);
 
 module.exports = CustomerProfile;

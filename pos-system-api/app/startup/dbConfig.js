@@ -1,12 +1,11 @@
-const mongoose = require("mongoose");
-mongoose.Promise = require("bluebird"); //Bluebird is a fully featured promise library with focus on innovative features and performance
-
-const CONFIG = require("../../config");
+const { sequelize } = require("../models");
 
 module.exports = async () => {
-  const options = {
-    // useNewUrlParser: true,
-  };
-  await mongoose.connect(CONFIG.mongoUri, options);
-  console.log("MongoDB connect at: ", CONFIG.mongoUri);
+  await sequelize.authenticate();
+  // Create / alter tables to match models (safe for first deploy on empty DB)
+  await sequelize.sync({ alter: true });
+  console.log(
+    "MySQL connected:",
+    `${process.env.DB_HOST || "localhost"}/${process.env.DB_NAME || "rasantsol_pos"}`
+  );
 };

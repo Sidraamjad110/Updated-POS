@@ -1,20 +1,12 @@
-
 // File: app/middleware/upload.js
 const multer = require("multer");
-const cloudinary = require("cloudinary").v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
-  const allowed = ["image/jpeg", "image/png", "image/webp"];
+  const allowed = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
   if (allowed.includes(file.mimetype)) cb(null, true);
-  else cb(new Error("Invalid file type"), false);
+  else cb(new Error("Invalid file type. Use JPG, PNG, WEBP, or GIF."), false);
 };
 
 const upload = multer({
@@ -23,18 +15,29 @@ const upload = multer({
   limits: { fileSize: 4 * 1024 * 1024 }, // 4MB
 });
 
-const uploadToCloudinary = async (file) => {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      { folder: "products" },
-      (error, result) => {
-        console.log("Cloudinary upload:", { error, url: result?.secure_url });
-        if (error) reject(error);
-        else resolve(result.secure_url);
-      }
-    );
-    stream.end(file.buffer);
-  });
+/** Attach product image bytes onto req.body for DB BLOB storage. */
+const attachImageBytes = (req, res, next) => {
+  if (req.file && req.file.buffer) {
+    req.body.picture_data = req.file.buffer;
+    req.body.picture_mime = req.file.mimetype || "image/jpeg";
+  }
+  next();
 };
 
-module.exports = { upload, uploadToCloudinary };
+/**
+ * Attach admin logo / store logo file buffers onto req.body for MySQL BLOB storage.
+ * No third-party image host.
+ */
+const attachAdminLogoBytes = (req, res, next) => {
+  if (req.files?.logo?.[0]?.buffer) {
+    req.body.logo_data = req.files.logo[0].buffer;
+    req.body.logo_mime = req.files.logo[0].mimetype || "image/jpeg";
+  }
+  if (req.files?.store_logo?.[0]?.buffer) {
+    req.body.store_logo_data = req.files.store_logo[0].buffer;
+    req.body.store_logo_mime = req.files.store_logo[0].mimetype || "image/jpeg";
+  }
+  next();
+};
+
+module.exports = { upload, attachImageBytes, attachAdminLogoBytes };

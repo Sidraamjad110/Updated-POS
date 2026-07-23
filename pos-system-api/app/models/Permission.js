@@ -1,12 +1,24 @@
-const mongoose = require("mongoose");
+const { DataTypes } = require("sequelize");
+const { v4: uuidv4 } = require("uuid");
+const sequelize = require("../db/sequelize");
 
-const PermissionSchema = new mongoose.Schema({
-  key: { type: String, required: true },
-  description: { type: String, required: false }, // Added description field
-  created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-}, { timestamps: true });
+const Permission = sequelize.define(
+  "Permission",
+  {
+    id: {
+      type: DataTypes.CHAR(36),
+      primaryKey: true,
+      defaultValue: () => uuidv4(),
+    },
+    key: { type: DataTypes.STRING(255), allowNull: false },
+    description: { type: DataTypes.TEXT, allowNull: true },
+    created_by: { type: DataTypes.CHAR(36), allowNull: false },
+  },
+  {
+    tableName: "permissions",
+    timestamps: true,
+    indexes: [{ unique: true, fields: ["key", "created_by"] }],
+  }
+);
 
-// Make compound index for admin-level uniqueness
-PermissionSchema.index({ key: 1, created_by: 1 }, { unique: true });
-
-module.exports = mongoose.model("Permission", PermissionSchema);
+module.exports = Permission;

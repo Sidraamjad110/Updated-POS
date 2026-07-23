@@ -1,11 +1,25 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require("sequelize");
+const { v4: uuidv4 } = require("uuid");
+const sequelize = require("../db/sequelize");
 
-const orderItemSchema = new mongoose.Schema({
-  order_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true },
-  product_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-  quantity: { type: Number, required: true },
-  sub_total: { type: Number, required: true },
-  created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-}, { timestamps: true });
+const OrderItem = sequelize.define(
+  "OrderItem",
+  {
+    id: {
+      type: DataTypes.CHAR(36),
+      primaryKey: true,
+      defaultValue: () => uuidv4(),
+    },
+    order_id: { type: DataTypes.CHAR(36), allowNull: false },
+    product_id: { type: DataTypes.CHAR(36), allowNull: false },
+    quantity: { type: DataTypes.INTEGER, allowNull: false },
+    sub_total: { type: DataTypes.DECIMAL(12, 2), allowNull: false },
+    created_by: { type: DataTypes.CHAR(36), allowNull: false },
+  },
+  {
+    tableName: "order_items",
+    timestamps: true,
+  }
+);
 
-module.exports = mongoose.model('OrderItem', orderItemSchema);
+module.exports = OrderItem;

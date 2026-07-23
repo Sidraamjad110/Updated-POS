@@ -1,11 +1,24 @@
-const mongoose = require('mongoose');
-const RoleSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  description: { type: String, required: false }, // Added description field
-  permissions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Permission" }],
-  created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-});
+const { DataTypes } = require("sequelize");
+const { v4: uuidv4 } = require("uuid");
+const sequelize = require("../db/sequelize");
 
-// Ensure uniqueness per admin (name + created_by)
-RoleSchema.index({ name: 1, created_by: 1 }, { unique: true });
-module.exports = mongoose.model('Role', RoleSchema);
+const Role = sequelize.define(
+  "Role",
+  {
+    id: {
+      type: DataTypes.CHAR(36),
+      primaryKey: true,
+      defaultValue: () => uuidv4(),
+    },
+    name: { type: DataTypes.STRING(255), allowNull: false },
+    description: { type: DataTypes.TEXT, allowNull: true },
+    created_by: { type: DataTypes.CHAR(36), allowNull: false },
+  },
+  {
+    tableName: "roles",
+    timestamps: false,
+    indexes: [{ unique: true, fields: ["name", "created_by"] }],
+  }
+);
+
+module.exports = Role;

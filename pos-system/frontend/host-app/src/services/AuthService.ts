@@ -33,7 +33,7 @@ interface MainPage {
     permissions: Permission[];
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://192.168.18.37:3000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://pos.rasantsol.com';
 const TIMEOUT_MS = 10000;
 
 export const createSlug = (storeName: string): string => {

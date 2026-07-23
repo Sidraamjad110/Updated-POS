@@ -43,7 +43,7 @@ interface PublicStoreResponse {
     };
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://192.168.18.37:3000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://pos.rasantsol.com';
 
 // Error handling utility similar to RoleService
 const handleApiError = (response: ApiResponse, logout: () => void): string => {
@@ -334,13 +334,13 @@ export const extractSlugFromPath = (pathname: string | null): string | null => {
 
     const segments = pathname.split('/').filter(Boolean);
 
-    if (pathname.startsWith('/public/') && segments.length >= 2) {
-        return segments[1];
+    if (pathname.startsWith('/public/')) {
+        return null;
     }
 
     if (segments.length > 0 && !isPublicRoute(pathname)) {
         const firstSegment = segments[0];
-        const directRoutes = ['Dashboard', 'Orders', 'MenuManagement', 'RoleAndUserManagement', 'Tables', 'Settings'];
+        const directRoutes = ['Dashboard', 'Orders', 'MenuManagement', 'RoleAndUserManagement', 'Tables', 'Settings', 'Registration', 'Products', 'Categories', 'Roles', 'Users', 'NoAccess', 'unauthorized'];
         if (!directRoutes.includes(firstSegment)) {
             return firstSegment;
         }

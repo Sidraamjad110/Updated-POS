@@ -8,10 +8,15 @@ dotenv.config({
 module.exports = {
   PLATFORM: process.env.PLATFORM || "Rasant Resturent",
   root: path.normalize(__dirname + "../app"),
-  mongoUri:
-    process.env.MONGOURI ||
-    process.env.MONGODB_URI ||
-    "mongodb+srv://resturentuser:pointofsale123@pointofsale.ck2n4ab.mongodb.net/resturentdb?retryWrites=true&w=majority",
+  // Kept for backwards compatibility; DB is now MySQL via Sequelize
+  mongoUri: process.env.MONGOURI || process.env.MONGODB_URI || null,
+  db: {
+    host: process.env.DB_HOST || process.env.MYSQL_HOST || "localhost",
+    port: process.env.DB_PORT || process.env.MYSQL_PORT || "3306",
+    name: process.env.DB_NAME || process.env.MYSQL_DATABASE || "rasantsol_pos",
+    user: process.env.DB_USER || process.env.MYSQL_USER || "rasantsol_pos_user",
+    password: process.env.DB_PASSWORD || process.env.MYSQL_PASSWORD || "uTbCZQqYyjd5",
+  },
   serverUrl:
     process.env.PUBLIC_URL ||
     process.env.SERVER_URL ||

@@ -45,7 +45,7 @@ export default function Settings() {
   const lastKnownThemeRef = useRef<string>('default');
   const lastKnownCurrencyRef = useRef<string>('pkr');
 
-  const API_BASE_URL = 'http://192.168.18.37:3000';
+  const API_BASE_URL = 'https://pos.rasantsol.com';
   const ADMIN_PROFILE_ENDPOINT = '/users/api/v1/admin-profile';
   const USER_PROFILE_ENDPOINT = '/users/api/v1/profile';
   const USER_DETAILS_ENDPOINT = '/users/api/v1/details';
@@ -603,8 +603,7 @@ export default function Settings() {
                   </div>
                   <button
                       onClick={() => {
-                        const slug = restaurantSlug || localStorage.getItem('restaurantSlug') || '';
-                        const path = slug ? `/${slug}/Settings/site` : '/Settings/site';
+                        const path = '/Settings/site';
                         router.push(path);
                       }}
                       className="w-full px-4 py-2 bg-[var(--primary-color)] text-white rounded-lg hover:bg-[var(--primary-color)]/90 transition-colors duration-200 flex items-center justify-center"

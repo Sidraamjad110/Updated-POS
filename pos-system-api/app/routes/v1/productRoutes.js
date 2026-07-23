@@ -7,15 +7,28 @@ const {
   updateProductStatus,
   deleteProduct,
   getDeactiveProducts,
+  getProductImage,
 } = require("../../controllers/productController");
 const { AVAILABLE_AUTHS } = require("../../utils/constants");
-const { upload, uploadToCloudinary } = require("../../middleware/upload");
+const { upload, attachImageBytes } = require("../../middleware/upload");
 const { authHeader } = require("../../utils/utils");
 
 const apiPrefix = "/products/api/v1/";
 
 const routes = [
-  // Create Product
+  // Serve product image from DB (no auth so <img src> works)
+  {
+    method: "GET",
+    path: `${apiPrefix}image/:id`,
+    // no auth — browsers cannot send JWT on <img src>
+    joiSchemaForSwagger: {
+      group: "Product",
+      description: "Get product image bytes stored in the database",
+      model: "GetProductImage",
+    },
+    handler: getProductImage,
+  },
+  // Create Product — image saved as BLOB in MySQL
   {
     method: "POST",
     path: `${apiPrefix}create`,
@@ -24,20 +37,7 @@ const routes = [
       (req, res, next) => {
         upload.single("picture")(req, res, next);
       },
-      async (req, res, next) => {
-        if (req.file) {
-          try {
-            req.body.pictureUrl = await uploadToCloudinary(req.file);
-            next();
-          } catch (error) {
-            console.error("Cloudinary upload error:", error);
-            return res.status(500).json({ error: "Failed to upload image" });
-          }
-        } else {
-          console.log("No file uploaded");
-          next();
-        }
-      },
+      attachImageBytes,
     ],
     joiSchemaForSwagger: {
       headers: authHeader,
@@ -46,13 +46,13 @@ const routes = [
         description: Joi.string().required().description("Product description").example("Freshly brewed coffee").default("Freshly brewed coffee"),
         price: Joi.number().required().description("Product price").example(5.99).default(5.99),
         category_id: Joi.string().required().description("Associated category ID").example("cat123").default("cat123"),
-        picture: Joi.any().optional().description("Product image file"),
+        picture: Joi.any().optional().description("Product image file (stored in DB)"),
         status: Joi.string().valid('active', 'deactive').optional().description("Product status").example("active").default("active"),
         time_required: Joi.number().min(0).required().description("Time required to prepare the product in minutes").example(5).default(5),
       }).description("Request body for creating a product"),
       consumes: ["multipart/form-data"],
       group: "Product",
-      description: "Create a new product with optional image",
+      description: "Create a new product; image is stored as bytes in MySQL",
       model: "CreateProductWithImage",
     },
     handler: createProduct,
@@ -95,20 +95,7 @@ const routes = [
       (req, res, next) => {
         upload.single("picture")(req, res, next);
       },
-      async (req, res, next) => {
-        if (req.file) {
-          try {
-            req.body.pictureUrl = await uploadToCloudinary(req.file);
-            next();
-          } catch (error) {
-            console.error("Cloudinary upload error:", error);
-            return res.status(500).json({ error: "Failed to upload image" });
-          }
-        } else {
-          console.log("No file uploaded");
-          next();
-        }
-      },
+      attachImageBytes,
     ],
     joiSchemaForSwagger: {
       headers: authHeader,
@@ -118,13 +105,13 @@ const routes = [
         description: Joi.string().optional().description("Updated product description").example("Updated coffee description").default("Updated coffee description"),
         price: Joi.number().optional().description("Updated product price").example(6.99).default(6.99),
         category_id: Joi.string().optional().description("Updated category ID").example("cat456").default("cat456"),
-        picture: Joi.any().optional().description("Updated product image file"),
+        picture: Joi.any().optional().description("Updated product image file (stored in DB)"),
         status: Joi.string().valid('active', 'deactive').optional().description("Updated product status").example("active").default("active"),
         time_required: Joi.number().min(0).optional().description("Updated time required to prepare the product in minutes").example(5).default(5),
       }),
       consumes: ["multipart/form-data"],
       group: "Product",
-      description: "Update a product (optionally with new image)",
+      description: "Update a product; new image is stored as bytes in MySQL",
       model: "UpdateProductWithImage",
     },
     handler: updateProduct,

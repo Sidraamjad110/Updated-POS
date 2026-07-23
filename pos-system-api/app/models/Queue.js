@@ -1,13 +1,26 @@
-// filename: Queue.js
-const mongoose = require('mongoose');
+const { DataTypes } = require("sequelize");
+const { v4: uuidv4 } = require("uuid");
+const sequelize = require("../db/sequelize");
 
-const queueSchema = new mongoose.Schema({
-  order_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true },
-  order_number: { type: String, required: true },
-  preparation_time: { type: Number, required: true }, // in minutes
-  confirmed_at: { type: Date, required: true },
-  estimated_completion: { type: Date, required: true },
-  created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-}, { timestamps: true });
+const Queue = sequelize.define(
+  "Queue",
+  {
+    id: {
+      type: DataTypes.CHAR(36),
+      primaryKey: true,
+      defaultValue: () => uuidv4(),
+    },
+    order_id: { type: DataTypes.CHAR(36), allowNull: false },
+    order_number: { type: DataTypes.STRING(50), allowNull: false },
+    preparation_time: { type: DataTypes.INTEGER, allowNull: false },
+    confirmed_at: { type: DataTypes.DATE, allowNull: false },
+    estimated_completion: { type: DataTypes.DATE, allowNull: false },
+    created_by: { type: DataTypes.CHAR(36), allowNull: false },
+  },
+  {
+    tableName: "queues",
+    timestamps: true,
+  }
+);
 
-module.exports = mongoose.model('Queue', queueSchema);
+module.exports = Queue;

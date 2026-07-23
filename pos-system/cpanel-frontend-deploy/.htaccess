@@ -1,0 +1,9 @@
+# CloudLinux / cPanel Node.js (Passenger)
+PassengerAppRoot "/home2/rasantsol/pos.frontend.rasantsol.com"
+PassengerBaseURI "/"
+PassengerNodejs "/home2/rasantsol/nodevenv/pos.frontend.rasantsol.com/20/bin/node"
+PassengerAppType node
+PassengerStartupFile server.js
+
+RewriteEngine On
+RewriteRule ^$ - [L]

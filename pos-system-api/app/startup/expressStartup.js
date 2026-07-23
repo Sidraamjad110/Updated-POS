@@ -63,6 +63,13 @@ try {
 
     app.use('/branches', express.static(path.join(__dirname, '../../public')));
     app.get('/branches', (req, res) => res.send('ok'));
+    app.get('/', (req, res) => {
+      res.json({
+        success: true,
+        message: 'POS API is running',
+        docs: '/api-docs',
+      });
+    });
     await require('./dbConfig')();
     await routeUtils.route(app, routes);
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerOptions));

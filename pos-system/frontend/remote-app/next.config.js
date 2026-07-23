@@ -3,7 +3,7 @@ const NextFederationPlugin = require('@module-federation/nextjs-mf');
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   process.env.REACT_APP_API_URL ||
-  'https://imaging-larger-trusted-pci.trycloudflare.com';
+  'https://pos.rasantsol.com';
 
 module.exports = {
   env: {

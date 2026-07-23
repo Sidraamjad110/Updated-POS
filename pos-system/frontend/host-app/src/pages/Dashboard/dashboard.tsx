@@ -781,7 +781,7 @@ const Dashboard = () => {
       try {
         const [rawOrders, roleData] = await Promise.all([
           getOrders(token, logout),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL || 'https://imaging-larger-trusted-pci.trycloudflare.com'}/rolepermission/api/v1/roles/list`, {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL || 'https://pos.rasantsol.com'}/rolepermission/api/v1/roles/list`, {
             headers: { Authorization: `Bearer ${token}` },
           }).then(res => res.json()).then(data => data?.data?.data || [])
         ]);

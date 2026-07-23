@@ -56,4 +56,33 @@ userController.updateUserStatus = async (req, res) => {
   handleResponse(res, promise, "User status updated successfully");
 };
 
+userController.getLogoImage = async (req, res) => {
+  try {
+    const image = await userService.getLogoImage(req.params.id);
+    res.setHeader("Content-Type", image.mime);
+    res.setHeader("Cache-Control", "public, max-age=86400");
+    return res.send(Buffer.isBuffer(image.data) ? image.data : Buffer.from(image.data));
+  } catch (err) {
+    const status = err.status || err.statusCode || 500;
+    return res.status(status).json({ success: false, message: err.message || "Image error" });
+  }
+};
+
+userController.getStoreLogoImage = async (req, res) => {
+  try {
+    const image = await userService.getStoreLogoImage(req.params.id);
+    res.setHeader("Content-Type", image.mime);
+    res.setHeader("Cache-Control", "public, max-age=86400");
+    return res.send(Buffer.isBuffer(image.data) ? image.data : Buffer.from(image.data));
+  } catch (err) {
+    const status = err.status || err.statusCode || 500;
+    return res.status(status).json({ success: false, message: err.message || "Image error" });
+  }
+};
+
+userController.getPublicStore = async (req, res) => {
+  const promise = userService.getPublicStoreBySlug(req.params.slug);
+  handleResponse(res, promise, "Store retrieved successfully");
+};
+
 module.exports = userController;

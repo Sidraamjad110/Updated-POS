@@ -21,7 +21,7 @@ interface ApiResponse {
   data?: any;
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://192.168.18.37:3000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://pos.rasantsol.com';
 
 const handleApiError = (response: ApiResponse, logout?: () => void): string => {
   if (!response.success) {

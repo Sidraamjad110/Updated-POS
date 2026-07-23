@@ -32,7 +32,7 @@ interface ApiResponse<T> {
   details?: any;
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://192.168.18.37:3000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://pos.rasantsol.com';
 
 const handleApiError = async (response: Response, logout: () => void): Promise<string> => {
   if (response.status === 401) {
